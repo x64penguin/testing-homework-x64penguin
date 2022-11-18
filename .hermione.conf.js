@@ -5,9 +5,15 @@ module.exports = {
         chrome: {
             automationProtocol: "devtools",
 
-            desiredCapibilities: {
+            desiredCapabilities: {
                 browserName: "chrome"
             }
+        }
+    },
+
+    plugins: {
+        "html-reporter/hermione": {
+            path: "hermione-html-report"
         }
     }
 }

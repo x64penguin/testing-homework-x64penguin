@@ -81,4 +81,83 @@ describe("cart tests", () => {
 
         assert(cartText == "Cart (2)", `total cart intems displayed incorrectly: ${cartText}`);
     });
+
+    it("table in cart displaying", async ({browser}) => {
+        await browser.url("/hw/store/catalog/0" + bugId);
+
+        const productDetails = await browser.$(".Product > .ProductDetails > div:nth-child(2)");
+        await productDetails.waitForExist();
+
+        const addToCardButton = await browser.$(".ProductDetails-AddToCart");
+        await addToCardButton.click();
+
+        await browser.url("/hw/store/cart" + bugId);
+
+        const cartTable = await browser.$(".Cart-Table");
+        await cartTable.waitForExist();
+
+        assert(cartTable.isDisplayed(), "cart table not displaying");
+    });
+
+    it("table info displaying", async ({browser}) => {
+        await browser.url("/hw/store/catalog/0" + bugId);
+
+        const productDetails = await browser.$(".Product > .ProductDetails > div:nth-child(2)");
+        await productDetails.waitForExist();
+
+        const addToCardButton = await browser.$(".ProductDetails-AddToCart");
+        await addToCardButton.click();
+
+        await browser.url("/hw/store/cart" + bugId);
+
+        const cartTable = await browser.$(".Cart-Table");
+        await cartTable.waitForExist();
+
+        const cartRows = await browser.$$("tbody > tr");
+
+        cartRows.forEach(async (item) => {
+            const data = await item.$$("td");
+
+            assert(data.length == 4, "not enough data in table");
+
+            data.forEach(async (dataItem) => {
+                assert(dataItem.isDisplayed(), "not displaing data in table");
+            })
+        });
+
+        const orderPrice = await cartTable.$(".Cart-OrderPrice");
+        assert(orderPrice.isDisplayed(), "order price not displayed");
+    });
+
+    it("clear cart button", async ({browser}) => {
+        await browser.url("/hw/store/catalog/0" + bugId);
+
+        const productDetails = await browser.$(".Product > .ProductDetails > div:nth-child(2)");
+        await productDetails.waitForExist();
+
+        const addToCardButton = await browser.$(".ProductDetails-AddToCart");
+        await addToCardButton.click();
+
+        await browser.url("/hw/store/cart" + bugId);
+
+        const clearButton = browser.$(".Cart-Clear");
+        await clearButton.waitForExist();
+
+        await clearButton.click();
+
+        const cart = await browser.execute(() => localStorage.getItem("example-store-cart"));
+
+        assert(cart == undefined || cart == "{}", `cart not empty`);
+    });
+
+    it("clear cart link to catalog", async ({browser}) => {
+        await browser.url("/hw/store/cart" + bugId);
+        await browser.execute(() => {
+            localStorage.clear();
+            location.reload();
+        });
+        
+        const link = await browser.$(".Cart a");
+        await link.waitForExist();
+    })
 })
